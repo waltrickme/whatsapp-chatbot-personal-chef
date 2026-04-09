@@ -1,0 +1,117 @@
+{
+  "_meta": {
+    "note": "Este workflow foi sanitizado para portfólio. Substitui os valores placeholder pelas tuas credenciais reais.",
+    "version": "1.0.0",
+    "project": "Thamy Personal Chef — WhatsApp Chatbot"
+  },
+  "name": "WhatsApp Chatbot — Thamy Personal Chef",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "path": "whatsapp-webhook",
+        "httpMethod": "POST"
+      },
+      "notes": "Recebe mensagens da Evolution API"
+    },
+    {
+      "id": "2",
+      "name": "Filtrar Tipo de Mensagem",
+      "type": "n8n-nodes-base.switch",
+      "parameters": {
+        "conditions": {
+          "rules": [
+            {
+              "value1": "={{ $json.event }}",
+              "operation": "equals",
+              "value2": "messages.upsert"
+            }
+          ]
+        }
+      },
+      "notes": "Filtra apenas mensagens de texto recebidas"
+    },
+    {
+      "id": "3",
+      "name": "Gerir Sessão",
+      "type": "n8n-nodes-base.set",
+      "parameters": {
+        "values": {
+          "sessionId": "={{ $json.data.key.remoteJid }}",
+          "message": "={{ $json.data.message.conversation }}",
+          "timestamp": "={{ $now }}"
+        }
+      },
+      "notes": "Extrai dados da mensagem e cria ID de sessão"
+    },
+    {
+      "id": "4",
+      "name": "Agente IA — Gemini",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "parameters": {
+        "model": "gemini-1.5-flash",
+        "systemPrompt": "Ver ficheiro /prompts/ai-agent-system-prompt.md",
+        "apiKey": "={{ $env.GEMINI_API_KEY }}"
+      },
+      "notes": "Processa a mensagem com Google Gemini e gera resposta"
+    },
+    {
+      "id": "5",
+      "name": "Router — Tipo de Serviço",
+      "type": "n8n-nodes-base.switch",
+      "parameters": {
+        "conditions": {
+          "rules": [
+            { "value1": "meal_prep", "label": "Refeições Semanais" },
+            { "value1": "dinner", "label": "Jantar Privado" },
+            { "value1": "event", "label": "Evento/Catering" }
+          ]
+        }
+      },
+      "notes": "Encaminha para fluxo específico conforme serviço identificado pelo agente"
+    },
+    {
+      "id": "6",
+      "name": "Registar em Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "spreadsheetId": "={{ $env.GOOGLE_SHEET_ID }}",
+        "sheetName": "Clientes",
+        "columns": {
+          "sessionId": "={{ $json.sessionId }}",
+          "serviceType": "={{ $json.serviceType }}",
+          "timestamp": "={{ $json.timestamp }}"
+        }
+      },
+      "notes": "Regista dados do cliente na Google Sheet"
+    },
+    {
+      "id": "7",
+      "name": "Enviar Resposta WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.EVOLUTION_API_URL }}/message/sendText/{{ $env.WHATSAPP_INSTANCE }}",
+        "headers": {
+          "apikey": "={{ $env.EVOLUTION_API_KEY }}"
+        },
+        "body": {
+          "number": "={{ $json.sessionId }}",
+          "text": "={{ $json.agentResponse }}"
+        }
+      },
+      "notes": "Envia a resposta gerada pelo agente IA de volta ao cliente"
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": { "main": [["Filtrar Tipo de Mensagem"]] },
+    "Filtrar Tipo de Mensagem": { "main": [["Gerir Sessão"]] },
+    "Gerir Sessão": { "main": [["Agente IA — Gemini"]] },
+    "Agente IA — Gemini": { "main": [["Router — Tipo de Serviço"]] },
+    "Router — Tipo de Serviço": { "main": [["Registar em Google Sheets"]] },
+    "Registar em Google Sheets": { "main": [["Enviar Resposta WhatsApp"]] }
+  }
+}

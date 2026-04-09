@@ -1,0 +1,79 @@
+# ============================================
+# DADOS SENSÍVEIS — NUNCA ENVIAR PARA O GIT
+# ============================================
+
+# Variáveis de ambiente com credenciais reais
+.env
+*.env
+.env.local
+.env.production
+.env.staging
+
+# Ficheiros de credenciais Google
+credentials.json
+service-account.json
+google-credentials.json
+token.json
+
+# Workflows com dados reais de produção
+*_production.json
+*_real.json
+*_live.json
+
+# ============================================
+# SISTEMA
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ============================================
+# DESENVOLVIMENTO
+# ============================================
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Logs
+*.log
+logs/
+
+# Temporários
+*.tmp
+*.temp
+.cache/
+
+# ============================================
+# N8N
+# ============================================
+
+# Backups locais do n8n
+n8n-backup/
+*.n8n.json
+
+# ============================================
+# MAKE.COM
+# ============================================
+
+# Blueprints com dados reais
+*_blueprint_real.json
