@@ -2,9 +2,9 @@
   "_meta": {
     "note": "Este workflow foi sanitizado para portfólio. Substitui os valores placeholder pelas tuas credenciais reais.",
     "version": "1.0.0",
-    "project": "Thamy Personal Chef — WhatsApp Chatbot"
+    "project": "Personal Chef — WhatsApp Chatbot"
   },
-  "name": "WhatsApp Chatbot — Thamy Personal Chef",
+  "name": "WhatsApp Chatbot — Personal Chef",
   "nodes": [
     {
       "id": "1",
