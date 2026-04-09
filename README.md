@@ -1,4 +1,4 @@
-# 🍽️ Thamy Personal Chef — WhatsApp Automation
+# 🍽️ Personal Chef — WhatsApp Automation
 
 > Automação completa de atendimento via WhatsApp para marca de personal chef em Lisboa, integrando **n8n + Evolution API + Google Gemini AI**.
 
